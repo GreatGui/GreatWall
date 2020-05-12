@@ -2,6 +2,9 @@ module.exports = {
   pluginOptions: {
     electronBuilder: {
       outputDir: "dist_electron",
+      electronBuilder: {
+        externals: ["wallpaper"]
+      },
       builderOptions: {
         productName: "GreatWall",
         artifactName: "GreatWall-${version}.${ext}",

@@ -1,14 +1,31 @@
 "use strict";
 
-import { app, protocol, BrowserWindow } from "electron";
+/* global __static */
+import { app, protocol, BrowserWindow, Tray, Menu } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { autoUpdater } from "electron-updater";
+import path from "path";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
+let tray = null;
+let isQuiting = false;
+
+// const appFolder = path.dirname(process.execPath);
+// const updateExe = path.resolve(appFolder, "..", "Update.exe");
+// const exeName = path.basename(process.execPath);
+
+// app.setLoginItemSettings({
+//   openAtLogin: true,
+//   openAsHidden: true,
+//   path: updateExe,
+//   args: ["--processStart", `"${exeName}"`, "--process-start-args", `"--hidden"`]
+// });
+
+// Menu.setApplicationMenu(null);
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -18,10 +35,12 @@ protocol.registerSchemesAsPrivileged([
 function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
+    // frame: false,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      webSecurity: false
     }
   });
 
@@ -38,6 +57,15 @@ function createWindow() {
 
   win.on("closed", () => {
     win = null;
+  });
+
+  win.on("close", function(event) {
+    if (!isQuiting) {
+      event.preventDefault();
+      win.hide();
+    }
+
+    return false;
   });
 }
 
@@ -75,6 +103,38 @@ app.on("ready", async () => {
     //   console.error('Vue Devtools failed to install:', e.toString())
     // }
   }
+
+  tray = new Tray(path.join(__static, "favicon.ico"));
+
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: "Show App",
+      click: function() {
+        win.show();
+      }
+    },
+    {
+      label: "Next Wall",
+      click: function() {
+        win.show();
+      }
+    },
+    {
+      label: "Quit",
+      click: function() {
+        isQuiting = true;
+        app.quit();
+      }
+    }
+  ]);
+
+  tray.setToolTip("GreatWall");
+  tray.setContextMenu(contextMenu);
+
+  tray.on("click", () => {
+    win.show();
+  });
+
   createWindow();
 });
 
