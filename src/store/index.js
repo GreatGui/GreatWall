@@ -5,27 +5,30 @@ import * as myImage from "@/store/modules/myImage.js";
 
 Vue.use(Vuex);
 
-const wallpaper = require("wallpaper");
+import wallpaper from "wallpaper";
 
 export default new Vuex.Store({
   state: {
     currentWall: null,
-    // currentCollection: null,
-    nextPaper: null,
-    paperIndex: 0,
     isCollection: false,
-    time: 10,
-    milliseconds: 1000,
-    nextTimer: null
+    config: {
+      time: 10,
+      milliseconds: 60000
+    },
+    nextTimer: null,
+    version: JSON.stringify(require("../../package.json").version).replace(
+      /['"]+/g,
+      ""
+    )
   },
   getters: {
     timer: state => {
-      return state.time * state.milliseconds;
+      return state.config.time * state.config.milliseconds;
     }
   },
   mutations: {
     SET_PAPER(state, paper) {
-      state.currentPaper = paper;
+      state.currentWall = paper;
       // localStorage.currentPaper = paper;
     },
     SET_IS_COLLECTION(state, isCollection) {
@@ -33,7 +36,7 @@ export default new Vuex.Store({
       // localStorage.isCollection = isCollection;
     },
     SET_TIME(state, time) {
-      state.time = time;
+      state.config.time = time;
       // localStorage.time = time;
     },
     SET_NEXT_TIMER(state, timer) {
@@ -47,29 +50,36 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    changeWall({ commit, dispatch }, paper, isCollection = false) {
+    async changeWall({ commit, dispatch }, { paper, isCollection = false }) {
+      dispatch("cancelTimeout");
       commit("SET_PAPER", paper);
       commit("SET_IS_COLLECTION", isCollection);
 
-      (async () => {
-        await wallpaper.set(paper);
+      await wallpaper.set(paper);
 
-        await wallpaper.get();
+      if (isCollection) {
+        dispatch("cancelTimeout");
+        dispatch("startTimeout");
+      } else {
+        commit("collection/UNSELECT_COLLECTION_ID");
+      }
+    },
+    async getWall({ commit }) {
+      const wall = await wallpaper.get();
 
-        if (isCollection) {
-          dispatch("startTimeout");
-        }
-      })();
+      commit("SET_PAPER", wall.replace(/\\/g, "/"));
     },
     setTime({ commit }, time) {
       commit("SET_TIME", time);
     },
-    startTimeout({ commit, getters }) {
-      const timer = setTimeout(() => {
-        // console.log("Oi", state.nextTimer);
-      }, getters.timer);
+    startTimeout({ commit, getters, dispatch }) {
+      if (getters.timer > 59999) {
+        const timer = setTimeout(() => {
+          dispatch("collection/nextWall");
+        }, getters.timer);
 
-      commit("SET_NEXT_TIMER", timer);
+        commit("SET_NEXT_TIMER", timer);
+      }
     },
     cancelTimeout({ commit }) {
       commit("STOP_NEXT_TIMER");

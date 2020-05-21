@@ -37,8 +37,12 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1200,
     height: 800,
+    minWidth: 700,
+    minHeight: 450,
+    // show: false,
     // frame: false,
     webPreferences: {
+      // devTools: false,
       nodeIntegration: true,
       webSecurity: false
     }
@@ -109,19 +113,19 @@ app.on("ready", async () => {
   const contextMenu = Menu.buildFromTemplate([
     {
       label: "Show App",
-      click: function() {
+      click: () => {
         win.show();
       }
     },
-    {
-      label: "Next Wall",
-      click: function() {
-        win.show();
-      }
-    },
+    // {
+    //   label: "Next Wall",
+    //   click: () => {
+    //     // Next Wall
+    //   }
+    // },
     {
       label: "Quit",
-      click: function() {
+      click: () => {
         isQuiting = true;
         app.quit();
       }

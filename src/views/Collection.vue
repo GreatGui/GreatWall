@@ -1,78 +1,116 @@
 <template>
   <div class="collect">
     <header>
-      <router-link to="/collections">
-        <i class="fa fa-arrow-circle-left i-left"></i>
+      <router-link to="/collections" title="Back">
+        <i class="fa fa-arrow-circle-left i-left">&#xf0a8;</i>
       </router-link>
-      <h1>{{ collection.title }}</h1>
-      <p>{{ collection.description }}</p>
-    </header>
-    <transition-group class="gallery scrollbar" name="gallery" tag="div">
-      <div
-        v-for="(paper, index) in collection.papers"
-        :key="index"
-        class="image-card"
-        :class="mode"
-      >
-        <img :src="paper" alt="" />
+      <div class="collection-editable">
+        <text-to-input
+          class-name="collection-title"
+          tag="h2"
+          :text="collection.title"
+          :min="1"
+          :max="32"
+          @changed="editTitle"
+        >
+        </text-to-input>
+        <p>{{ collection.description }}</p>
       </div>
-    </transition-group>
+      <span
+        @click="choosedCollection(collection._id)"
+        title="Select this Collection of wallpapers"
+      >
+        <i v-if="collection._id == currentId" class="fa fa-check-circle">
+          &#xf058;
+        </i>
+        <i v-else class="fa fa-circle">&#xf111;</i>
+      </span>
+    </header>
+    <card-image
+      :images="collection.images"
+      @menu="collectionMenu"
+      :currentWallpaper="currentWall"
+    ></card-image>
   </div>
 </template>
 
 <script>
 import { mapActions, mapState } from "vuex";
+import CardImage from "@/components/CardImage";
+import TextToInput from "@/components/TextToInput";
+
 export default {
+  beforeRouteLeave(to, from, next) {
+    this.clearCollection();
+    next();
+  },
+  components: {
+    CardImage,
+    TextToInput
+  },
   props: {
     id: {
-      type: Number,
+      type: String,
       required: true
     }
   },
   mounted() {
-    this.id;
-  },
-  data() {
-    return {
-      mode: "little"
-    };
+    this.selectedCollection(this.id);
   },
   methods: {
-    ...mapActions("collection", ["selectedCollection"])
+    ...mapActions("collection", [
+      "selectedCollection",
+      "choosedCollection",
+      "collectionMenu",
+      "clearCollection",
+      "editTitle"
+    ])
   },
   computed: {
-    ...mapState("collection", ["collection"])
+    ...mapState(["currentWall"]),
+    ...mapState("collection", ["collection", "currentId", "paperIndex"])
   }
 };
 </script>
 
-<style>
-header .i-left {
-  position: absolute;
-  top: 20px;
-  left: 30px;
+<style scoped>
+header {
+  border-bottom: 1px solid #dedede;
+  padding-bottom: 15px;
+}
+
+a {
+  text-decoration: none;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header i {
   font-size: 36px;
+  cursor: pointer;
+}
+
+header .i-left {
+  /* position: absolute; */
+  /* top: 20px; */
+  /* left: 30px; */
+  transition: 0.5s all;
   color: #d9534f;
 }
 
-.gallery {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  height: 80vh; /* change it */
-  overflow-x: auto;
-  align-content: baseline;
+header .i-left:hover {
+  filter: brightness(1.25);
 }
 
-.image-card {
-  width: 400px;
-  padding: 10px;
-  box-sizing: border-box;
+.collection-editable {
+  width: 50%;
 }
 
-.image-card img {
-  width: 100%;
+.collection-title {
+  font-size: 1.5em;
 }
 </style>

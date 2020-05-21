@@ -3,36 +3,64 @@
     <div id="nav">
       <router-link v-for="menu in menus" :key="menu.name" :to="menu.to">
         <i class="fa" :class="`fa-${menu.class}`" v-html="menu.icon"></i>
-        <span class="subtitle" :style="`margin-top: ${menu.margin}px;`">{{
-          menu.name
-        }}</span>
+        <span class="subtitle" :style="`margin-top: ${menu.margin}px;`">
+          {{ menu.name }}
+        </span>
       </router-link>
     </div>
-    <router-view class="main" />
+    <transition
+      name="fade"
+      mode="out-in"
+      @beforeLeave="beforeLeave"
+      @enter="enter"
+      @afterEnter="afterEnter"
+    >
+      <router-view class="main" />
+    </transition>
+    <div v-show="modal" class="background-modal"></div>
   </div>
 </template>
 
 <script>
+// import path from "path";
+import { mapActions } from "vuex";
+
 export default {
+  enter() {
+    console.log("Enter");
+  },
+  beforeRouteEnter(to, from, next) {
+    console.log("beforeRouteEnter");
+    next();
+  },
+  created() {
+    console.log("Olá");
+    this.getWall();
+    this.loadCollection();
+    console.log("Olá 2");
+
+    // this.path = path.dirname(process.execPath);
+  },
   data() {
     return {
+      modal: false,
       menus: [
         {
           name: "Home",
           icon: "&#xf015;",
           class: "home",
           margin: "-5",
-          to: "/"
+          to: "/home"
         },
+        // {
+        //   name: "Konachan",
+        //   icon: "&#xf0c2;",
+        //   class: "cloud",
+        //   margin: "-5",
+        //   to: "/konachan"
+        // },
         {
-          name: "Konachan",
-          icon: "&#xf0c2;",
-          class: "cloud",
-          margin: "-5",
-          to: "/konachan"
-        },
-        {
-          name: "MyImages",
+          name: "My Images",
           icon: "&#xf03e;",
           class: "image",
           margin: "-8",
@@ -54,6 +82,25 @@ export default {
         }
       ]
     };
+  },
+  methods: {
+    ...mapActions(["getWall"]),
+    ...mapActions("collection", ["loadCollection"]),
+    beforeLeave(element) {
+      this.prevHeight = getComputedStyle(element).height;
+    },
+    enter(element) {
+      const { height } = getComputedStyle(element);
+
+      element.style.height = this.prevHeight;
+
+      setTimeout(() => {
+        element.style.height = height;
+      });
+    },
+    afterEnter(element) {
+      element.style.height = "100vh";
+    }
   }
 };
 </script>
@@ -65,6 +112,16 @@ export default {
   font-weight: normal;
 }
 
+@font-face {
+  font-family: "JosefinSans";
+  src: url(~@/assets/fonts/JosefinSans-VariableFont_wght.ttf);
+  font-weight: normal;
+}
+
+* {
+  font-family: "JosefinSans";
+}
+
 *,
 *:before,
 *:after {
@@ -73,7 +130,7 @@ export default {
   margin: 0;
 }
 
-.fa {
+i {
   font-family: "Font Awesome 5 Free";
   font-weight: 900;
   font-style: normal;
@@ -83,6 +140,7 @@ export default {
   flex: 1 1 auto;
   padding: 20px;
   position: relative;
+  width: calc(100% - 95px);
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -95,6 +153,7 @@ export default {
   text-align: center;
   color: #2c3e50;
   display: flex;
+  overflow: hidden;
 }
 
 #nav {
@@ -111,6 +170,7 @@ export default {
   color: #2c3e50;
   text-decoration: none;
   margin-bottom: 10px;
+  transition: 0.5s all;
 }
 
 #nav a:last-of-type {
@@ -118,7 +178,16 @@ export default {
   margin-bottom: 0;
 }
 
-#nav a.router-link-exact-active {
+#nav a:hover:not(.router-link-active) {
+  filter: brightness(1.5);
+}
+
+#nav a.router-link-active:hover:not(.router-link-exact-active) {
+  filter: brightness(1.15);
+}
+
+#nav a.router-link-exact-active,
+#nav a.router-link-active {
   color: #42b983;
 }
 
@@ -129,5 +198,28 @@ export default {
 .subtitle {
   font-size: 10px;
   display: block;
+}
+
+.background-modal {
+  height: 100vh;
+  width: 100vw;
+  position: absolute;
+  background: #000b;
+  z-index: 101;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+  transition-property: height, opacity;
+  transition-timing-function: ease;
+  overflow: hidden;
+  /* transition: opacity 1s, transform 1s; */
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+  /* transform: translateX(-30%); */
 }
 </style>

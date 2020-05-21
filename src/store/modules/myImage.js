@@ -1,15 +1,19 @@
+import fs from "fs";
+import { remote } from "electron";
+const { Menu, MenuItem } = remote;
+
 export const namespaced = true;
 
 export const state = {
-  path: null,
+  path: "D:/Guilherme/Pictures/atha",
   folders: [],
   images: [],
   selected: null
 };
 
 export const getters = {
-  pathUp: state => {
-    return state.path.includes("/");
+  getPath: state => {
+    return state.path;
   }
 };
 
@@ -39,18 +43,122 @@ export const actions = {
     commit("RESET_IMAGES");
     commit("RESET_FOLDERS");
   },
-  handleImg({ commit, rootDispatch }, image) {
-    commit("SELECT_IMAGE", image);
-    rootDispatch("changeWall", image);
-    // dispatch("changeWall", image, null, { root: true });
+  handleImg({ commit, dispatch }, paper) {
+    commit("SELECT_IMAGE", paper);
+
+    dispatch("changeWall", { paper }, { root: true });
   },
-  handleDir({ commit }, path) {
+  handleDir({ commit, dispatch }, path) {
     commit("SET_PATH", path);
+
+    dispatch("mapPath", path);
   },
-  handleUpDir({ commit, getters }) {
-    if (getters.pathUp) {
-      const newPath = this.path.slice(0, this.path.lastIndexOf("/"));
+  handleUpDir({ commit, getters, dispatch }) {
+    if (getters.getPath.includes("/")) {
+      const newPath = getters.getPath.slice(
+        0,
+        getters.getPath.lastIndexOf("/")
+      );
       commit("SET_PATH", newPath);
+      dispatch("mapPath", newPath);
     }
+  },
+  readURL({ commit, dispatch }, e) {
+    if (e.target.files[0]) {
+      const path = e.target.files[0].path.replace(/\\/g, "/");
+
+      commit("SET_PATH", path);
+      dispatch("mapPath", path);
+    }
+  },
+  mapPath({ commit, dispatch, state }, somePath = null) {
+    const path = somePath || state.path;
+
+    dispatch("clearDir");
+    const files = fs.readdirSync(path);
+
+    for (let file of files) {
+      if (/\.(jpe?g|png)$/i.test(file)) {
+        let image = new Image();
+        image.src = `${path}/${file}`;
+
+        // this.$nextTick(() => {
+        commit("SET_IMAGES", {
+          name: file,
+          path,
+          width: null,
+          height: null
+        });
+        // });
+      } else {
+        fs.lstat(`${path}/${file}`, (err, stat) => {
+          if (err) {
+            return;
+          }
+          if (stat.isDirectory()) {
+            commit("SET_FOLDERS", {
+              name: file,
+              path
+            });
+          }
+        });
+      }
+    }
+  },
+  imageMenu({ dispatch, rootGetters }, { image }) {
+    const menu = new Menu();
+    const paper = `${image.path}/${image.name}`;
+    let submenu = [];
+
+    submenu.push({
+      label: "Create a new Collection",
+      click() {
+        dispatch("collection/newCollection", { image }, { root: true });
+      }
+    });
+
+    submenu.push({ type: "separator" });
+
+    for (let collection of rootGetters["collection/allCollections"]) {
+      let _id = collection._id;
+      let checked = false;
+      let enabled = true;
+
+      for (let colImage of collection.images) {
+        if (colImage.name == image.name) {
+          checked = true;
+          enabled = false;
+          break;
+        }
+      }
+
+      submenu.push({
+        label: collection.title,
+        type: "checkbox",
+        checked,
+        enabled,
+        click() {
+          dispatch("collection/addImage", { _id, image }, { root: true });
+        }
+      });
+    }
+
+    menu.append(
+      new MenuItem({
+        label: "Set wallpaper",
+        click() {
+          dispatch("changeWall", { paper }, { root: true });
+        }
+      })
+    );
+    menu.append(
+      new MenuItem({
+        label: "Add to Collection",
+        submenu
+      })
+    );
+
+    menu.popup();
+    // console.log(paper);
   }
 };

@@ -1,13 +1,18 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
+import Home from "@/views/Home";
 
 Vue.use(VueRouter);
 
 const routes = [
   {
     path: "/",
+    redirect: "/home"
+  },
+  {
+    path: "/home",
     name: "Home",
-    component: () => import("../views/Home.vue")
+    component: Home
   },
   {
     path: "/my-images",
@@ -25,7 +30,7 @@ const routes = [
     component: () => import("../views/Collections.vue")
   },
   {
-    path: "/collection/:id",
+    path: "/collections/:id",
     name: "Collection",
     component: () => import("../views/Collection.vue"),
     props: true

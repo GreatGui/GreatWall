@@ -4,8 +4,10 @@
     <div>
       <div>
         <label for="time">Time to Change</label>
-        <input id="time" type="text" v-model="time" />
+        <input id="time" type="text" v-model="config.time" />
+        <span>{{ timeMetric }}</span>
       </div>
+      <button @click="test">Save</button>
     </div>
   </div>
 </template>
@@ -14,8 +16,16 @@
 import { mapState } from "vuex";
 
 export default {
+  methods: {
+    test() {
+      console.log(this);
+    }
+  },
   computed: {
-    ...mapState(["time"])
+    ...mapState(["config"]),
+    timeMetric() {
+      return this.config.time == 1 ? "Minute" : "Minutes";
+    }
   }
 };
 </script>

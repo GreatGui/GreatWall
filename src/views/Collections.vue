@@ -2,33 +2,45 @@
   <div>
     <div class="collections">
       <div class="collect-plus" style="color: #42b983; cursor: pointer">
-        <div class="plus-plus">
-          <i class="fa fa-plus"></i>
+        <div class="plus-plus" @click="newCollection">
+          <i class="fa fa-plus">&#xf067;</i>
         </div>
         <div class="text-plus">
-          <h2>Add</h2>
+          <h3>Add</h3>
           <p>Add a New Collection</p>
         </div>
       </div>
       <div
         class="collect-plus"
-        v-for="collect in collections"
-        :key="collect.id"
+        v-for="(collection, index) in collections"
+        :key="collection._id"
       >
+        <div
+          class="collection-destroy"
+          title="Delete this Collection"
+          @click.prevent="deleteCollection({ _id: collection._id, index })"
+        >
+          <i class="fa fa-window-close">&#xf00d;</i>
+        </div>
         <div class="image-plus">
-          <router-link :to="{ name: 'Collection', params: { id: collect.id } }">
-            <img :src="collect.cover" alt="cover" />
+          <router-link
+            :to="{ name: 'Collection', params: { id: collection._id } }"
+          >
+            <img :src="defaultCover(collection.cover)" alt="cover" />
           </router-link>
         </div>
         <div class="text-plus">
-          <span @click="choosedCollection(collect.id)">
-            <i v-if="collect.id == currentId" class="fa fa-check-circle"
-              >&#xf058;</i
-            >
+          <span
+            @click="choosedCollection(collection._id)"
+            title="Select this Collection of wallpapers"
+          >
+            <i v-if="collection._id == currentId" class="fa fa-check-circle">
+              &#xf058;
+            </i>
             <i v-else class="fa fa-circle">&#xf111;</i>
           </span>
-          <h2>{{ `${collect.title} (${collect.papers.length})` }}</h2>
-          <p>{{ collect.description }}</p>
+          <h3>{{ collection.title }} [{{ collection.images.length }}]</h3>
+          <p>{{ collection.description }}</p>
         </div>
       </div>
     </div>
@@ -41,11 +53,15 @@ import { mapState, mapActions, mapGetters } from "vuex";
 export default {
   name: "Collections",
   methods: {
-    ...mapActions("collection", ["newCollection", "choosedCollection"])
+    ...mapActions("collection", [
+      "newCollection",
+      "choosedCollection",
+      "deleteCollection"
+    ])
   },
   computed: {
     ...mapState("collection", ["collections", "currentId"]),
-    ...mapGetters("collection", ["selectedId", "papersCount"])
+    ...mapGetters("collection", ["imagesCount", "defaultCover"])
   }
 };
 </script>
@@ -54,14 +70,36 @@ export default {
 .collections {
   display: flex;
   flex-wrap: wrap;
+  height: 100%;
+  overflow-x: auto;
+  padding: 20px 0px;
+  justify-content: center;
+  align-content: flex-start;
+}
+
+.collection-destroy i {
+  filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.5));
+}
+
+.collection-destroy {
+  position: absolute;
+  color: #fff;
+  right: 8px;
+  top: 4px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.collection-destroy:hover {
+  color: red;
 }
 
 .collect-plus {
   display: flex;
   position: relative;
   background: #fff;
-  border-radius: 2px;
-  width: 250px;
+  border-radius: 5px;
+  width: 350px;
   height: 250px;
   margin: 10px;
   flex-direction: column;
@@ -89,6 +127,22 @@ export default {
   padding: 6px 15px;
   height: 25%;
   text-align: left;
+  position: relative;
+}
+
+.text-plus h3 {
+  margin-top: 6px;
+  font-size: 22px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  width: calc(100% - 25px);
+}
+
+.text-plus p {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .image-plus {
@@ -100,17 +154,24 @@ export default {
 .image-plus img {
   width: 100%;
   height: 100%;
+  border-radius: 5px 5px 0 0;
 }
 
 .text-plus span {
   position: absolute;
-  bottom: 26px;
+  top: 10px;
   right: 16px;
   font-size: 24px;
   cursor: pointer;
+  user-select: none;
 }
 
+.fa-circle {
+  transition: 0.5s all;
+}
+
+.fa-circle:hover,
 .fa-check-circle {
-  color: darkgreen;
+  color: #42b983;
 }
 </style>
