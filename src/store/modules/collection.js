@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* global __static */
 import db from "@/datastore";
 import path from "path";
@@ -7,8 +8,8 @@ const { Menu, MenuItem } = remote;
 export const namespaced = true;
 
 export const state = {
-  currentId: null,
-  paperIndex: 0,
+  currentId: localStorage.currentId || null,
+  paperIndex: localStorage.paperIndex || 0,
   collections: [],
   collection: {}
 };
@@ -75,10 +76,11 @@ export const mutations = {
   },
   SELECT_COLLECTION_ID(state, id) {
     state.currentId = id;
-    // localStorage.currentId = id;
+    localStorage.currentId = id;
   },
   SET_PAPER_INDEX(state, index) {
     state.paperIndex = index;
+    localStorage.paperIndex = index;
   },
   START_PAPER_INDEX(state) {
     state.paperIndex = 0;
@@ -103,6 +105,9 @@ export const mutations = {
   },
   SET_TITLE(state, title) {
     state.collection.title = title;
+  },
+  SET_DESCRIPTION(state, description) {
+    state.collection.description = description;
   }
 };
 
@@ -138,7 +143,7 @@ export const actions = {
 
       dispatch("changeWall", { paper, isCollection: true }, { root: true });
     } else {
-      console.log("Error");
+      // console.log("Error: 0 Image");
     }
   },
   selectedCollection({ commit, getters }, id) {
@@ -157,21 +162,20 @@ export const actions = {
   addImage({ commit }, { _id, image }) {
     // const collection = getters.selectCollection(collectionId);
     db.update({ _id }, { $addToSet: { images: image } }, {}, (err, num) => {
-      if (err) {
-        console.log(err);
-      }
-      console.log(num);
+      // if (err) {
+      //   console.log(err);
+      // }
+      // console.log(num);
 
       commit("ADD_IMAGE_TO_COLLETION", { _id, image });
     });
   },
-  loadCollection({ commit }) {
+  loadDBCollections({ commit }) {
     return new Promise(resolve =>
       db.find({}, (err, res) => {
-        if (err) {
-          console.log(err);
-        }
-        // console.log("res", res);
+        // if (err) {
+        //   console.log(err);
+        // }
 
         commit("SET_COLLECTIONS", res);
         resolve(res);
@@ -182,10 +186,10 @@ export const actions = {
     const _id = getters.id;
 
     db.update({ _id }, { $set: { cover: paper } }, {}, (err, num) => {
-      if (err) {
-        console.log(err);
-      }
-      console.log(num);
+      // if (err) {
+      //   console.log(err);
+      // }
+      // console.log(num);
 
       commit("SET_COVER", { paper });
     });
@@ -198,10 +202,10 @@ export const actions = {
     }
 
     db.remove({ _id }, {}, (err, num) => {
-      if (err) {
-        console.log(err);
-      }
-      console.log(num);
+      // if (err) {
+      //   console.log(err);
+      // }
+      // console.log(num);
 
       commit("REMOVE_COLLECTION", { index });
     });
@@ -210,22 +214,34 @@ export const actions = {
     const _id = getters.id;
 
     db.update({ _id }, { $set: { title } }, {}, (err, num) => {
-      if (err) {
-        console.log(err);
-      }
-      console.log(num);
+      // if (err) {
+      //   console.log(err);
+      // }
+      // console.log(num);
 
       commit("SET_TITLE", title);
+    });
+  },
+  editDescription({ commit, getters }, description) {
+    const _id = getters.id;
+
+    db.update({ _id }, { $set: { description } }, {}, (err, num) => {
+      // if (err) {
+      //   console.log(err);
+      // }
+      // console.log(num);
+
+      commit("SET_DESCRIPTION", description);
     });
   },
   removeImage({ commit, getters }, { image, index }) {
     const _id = getters.id;
 
     db.update({ _id }, { $pull: { images: image } }, {}, (err, num) => {
-      if (err) {
-        console.log(err);
-      }
-      console.log(num);
+      // if (err) {
+      //   console.log(err);
+      // }
+      // console.log(num);
 
       commit("REMOVE_IMAGE", { index });
     });

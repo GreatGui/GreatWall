@@ -8,6 +8,7 @@
         ref="directory"
         webkitdirectory
         directory
+        title="Click to change folder"
       />
       <label for="client-folder">
         <i class="fas fa-folder-open">&#xf07c;</i>
@@ -25,6 +26,7 @@
       :images="images"
       @menu="imageMenu"
       :currentWallpaper="currentWall"
+      name="fade"
     ></card-image>
   </div>
 </template>
@@ -41,10 +43,6 @@ export default {
     Folders
   },
   mounted() {
-    if (localStorage.path) {
-      // this.path = localStorage.path;
-    }
-
     this.mapPath();
   },
   methods: {
@@ -61,7 +59,7 @@ export default {
   },
   computed: {
     ...mapState(["currentWall"]),
-    ...mapState("myImage", ["path", "folders", "images", "selected"])
+    ...mapState("myImage", ["path", "folders", "images"])
   }
 };
 </script>

@@ -1,8 +1,8 @@
 <template>
   <div ref="scrool" class="folder-visible" v-dragscroll.x>
-    <div class="folder-collection">
+    <transition-group class="folder-collection" name="list" tag="div">
       <div
-        key="-1"
+        key="/up"
         v-show="path"
         class="folder-card color-up"
         @click="handleUpDir"
@@ -11,8 +11,8 @@
         <span class="folder-up" data-no-dragscroll>⇪</span>
       </div>
       <div
-        v-for="(folder, index) in folders"
-        :key="index"
+        v-for="folder in folders"
+        :key="folder.name"
         class="folder-card"
         data-no-dragscroll
         @click="handleDir(`${folder.path}/${folder.name}`)"
@@ -21,7 +21,7 @@
           {{ folder.name }}
         </span>
       </div>
-    </div>
+    </transition-group>
   </div>
 </template>
 

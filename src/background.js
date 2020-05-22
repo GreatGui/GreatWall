@@ -25,7 +25,7 @@ let isQuiting = false;
 //   args: ["--processStart", `"${exeName}"`, "--process-start-args", `"--hidden"`]
 // });
 
-// Menu.setApplicationMenu(null);
+Menu.setApplicationMenu(null);
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([

@@ -17,7 +17,6 @@
     >
       <router-view class="main" />
     </transition>
-    <div v-show="modal" class="background-modal"></div>
   </div>
 </template>
 
@@ -26,20 +25,10 @@
 import { mapActions } from "vuex";
 
 export default {
-  enter() {
-    console.log("Enter");
-  },
-  beforeRouteEnter(to, from, next) {
-    console.log("beforeRouteEnter");
-    next();
-  },
   created() {
-    console.log("Olá");
     this.getWall();
+    this.loadDBCollections();
     this.loadCollection();
-    console.log("Olá 2");
-
-    // this.path = path.dirname(process.execPath);
   },
   data() {
     return {
@@ -52,13 +41,6 @@ export default {
           margin: "-5",
           to: "/home"
         },
-        // {
-        //   name: "Konachan",
-        //   icon: "&#xf0c2;",
-        //   class: "cloud",
-        //   margin: "-5",
-        //   to: "/konachan"
-        // },
         {
           name: "My Images",
           icon: "&#xf03e;",
@@ -84,8 +66,8 @@ export default {
     };
   },
   methods: {
-    ...mapActions(["getWall"]),
-    ...mapActions("collection", ["loadCollection"]),
+    ...mapActions(["getWall", "loadCollection"]),
+    ...mapActions("collection", ["loadDBCollections"]),
     beforeLeave(element) {
       this.prevHeight = getComputedStyle(element).height;
     },
@@ -115,6 +97,12 @@ export default {
 @font-face {
   font-family: "JosefinSans";
   src: url(~@/assets/fonts/JosefinSans-VariableFont_wght.ttf);
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "PermanentMarker";
+  src: url(~@/assets/fonts/PermanentMarker-Regular.ttf);
   font-weight: normal;
 }
 

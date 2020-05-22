@@ -3,7 +3,7 @@
   "productName": "GreatWall",
   "author": "GreatGui",
   "copyright": "Copyright © 2020 GreatGui",
-  "version": "0.3.0",
+  "version": "0.4.3",
   "description": "Manage your wallpapers",
   "private": true,
   "scripts": {

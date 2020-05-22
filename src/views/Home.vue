@@ -58,10 +58,10 @@
               </router-link>
             </div>
           </div>
-          <div v-if="selectedId" class="item">
-            <div class="name">Timer</div>
+          <!-- <div v-if="selectedId" class="item"> -->
+            <!-- <div class="name">Timer</div> -->
             <!-- <div class="value">{{ time }}</div> -->
-          </div>
+          <!-- </div> -->
           <div class="item">
             <div class="name">Version</div>
             <div class="value">{{ version }}</div>
@@ -94,13 +94,7 @@ export default {
 };
 </script>
 
-<style>
-@font-face {
-  font-family: "PermanentMarker";
-  src: url(~@/assets/fonts/PermanentMarker-Regular.ttf);
-  font-weight: normal;
-}
-
+<style scoped>
 h1,
 h1 b {
   font-family: "PermanentMarker";

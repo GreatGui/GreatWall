@@ -5,10 +5,9 @@ const { Menu, MenuItem } = remote;
 export const namespaced = true;
 
 export const state = {
-  path: "D:/Guilherme/Pictures/atha",
+  path: localStorage.path || null,
   folders: [],
-  images: [],
-  selected: null
+  images: []
 };
 
 export const getters = {
@@ -26,6 +25,7 @@ export const mutations = {
   },
   SET_PATH(state, path) {
     state.path = path;
+    localStorage.path = path;
   },
   RESET_IMAGES(state) {
     state.images.splice(0);
@@ -43,65 +43,63 @@ export const actions = {
     commit("RESET_IMAGES");
     commit("RESET_FOLDERS");
   },
-  handleImg({ commit, dispatch }, paper) {
-    commit("SELECT_IMAGE", paper);
-
+  handleImg({ dispatch }, paper) {
     dispatch("changeWall", { paper }, { root: true });
   },
-  handleDir({ commit, dispatch }, path) {
-    commit("SET_PATH", path);
-
+  handleDir({ dispatch }, path) {
     dispatch("mapPath", path);
   },
-  handleUpDir({ commit, getters, dispatch }) {
+  handleUpDir({ getters, dispatch }) {
     if (getters.getPath.includes("/")) {
       const newPath = getters.getPath.slice(
         0,
         getters.getPath.lastIndexOf("/")
       );
-      commit("SET_PATH", newPath);
+
       dispatch("mapPath", newPath);
     }
   },
-  readURL({ commit, dispatch }, e) {
+  readURL({ dispatch }, e) {
     if (e.target.files[0]) {
       const path = e.target.files[0].path.replace(/\\/g, "/");
 
-      commit("SET_PATH", path);
       dispatch("mapPath", path);
     }
   },
   mapPath({ commit, dispatch, state }, somePath = null) {
     const path = somePath || state.path;
 
+    commit("SET_PATH", path);
     dispatch("clearDir");
-    const files = fs.readdirSync(path);
+    if (path) {
+      const files = fs.readdirSync(path);
 
-    for (let file of files) {
-      if (/\.(jpe?g|png)$/i.test(file)) {
-        let image = new Image();
-        image.src = `${path}/${file}`;
+      for (let file of files) {
+        if (/\.(jpe?g|png)$/i.test(file)) {
+          let image = new Image();
+          image.src = `${path}/${file}`;
 
-        // this.$nextTick(() => {
-        commit("SET_IMAGES", {
-          name: file,
-          path,
-          width: null,
-          height: null
-        });
-        // });
-      } else {
-        fs.lstat(`${path}/${file}`, (err, stat) => {
-          if (err) {
-            return;
-          }
-          if (stat.isDirectory()) {
-            commit("SET_FOLDERS", {
-              name: file,
-              path
-            });
-          }
-        });
+          // this.$nextTick(() => {
+          commit("SET_IMAGES", {
+            name: file,
+            path,
+            width: null,
+            height: null
+          });
+          // });
+        } else {
+          fs.lstat(`${path}/${file}`, (err, stat) => {
+            if (err) {
+              return;
+            }
+            if (stat.isDirectory()) {
+              commit("SET_FOLDERS", {
+                name: file,
+                path
+              });
+            }
+          });
+        }
       }
     }
   },
@@ -159,6 +157,5 @@ export const actions = {
     );
 
     menu.popup();
-    // console.log(paper);
   }
 };

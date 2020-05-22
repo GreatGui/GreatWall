@@ -1,7 +1,12 @@
 <template>
   <div class="text-to-input">
-    <component :is="tag" v-show="!edit" @click="showInput($event)">
-      {{ text }}
+    <component
+      :is="tag"
+      v-show="!edit"
+      @click="showInput($event)"
+      :class="hasPlaceholder"
+    >
+      {{ text || place }}
     </component>
     <input
       v-show="edit"
@@ -35,6 +40,10 @@ export default {
     },
     className: {
       type: String
+    },
+    place: {
+      type: String,
+      default: ""
     }
   },
   data() {
@@ -47,7 +56,7 @@ export default {
       const text = event.target.value;
 
       if (this.edit) {
-        if (text.length > this.min) {
+        if (text.length >= this.min) {
           this.$emit("changed", text);
         }
         this.edit = false;
@@ -60,15 +69,32 @@ export default {
         event.target.nextSibling.focus();
       });
     }
+  },
+  computed: {
+    hasPlaceholder() {
+      return { placeholder: this.text ? false : true };
+    }
   }
 };
 </script>
 
 <style>
+.text-to-input:first-child {
+  cursor: pointer;
+}
+
+.placeholder {
+  color: #42b983;
+  cursor: pointer;
+}
+
+.placeholder:hover {
+  filter: brightness(1.25);
+}
+
 .text-to-input input {
   text-align: center;
   border: none;
   width: 100%;
-  font-size: 1.5em;
 }
 </style>

@@ -10,9 +10,9 @@ import wallpaper from "wallpaper";
 export default new Vuex.Store({
   state: {
     currentWall: null,
-    isCollection: false,
+    isCollection: localStorage.isCollection || false,
     config: {
-      time: 10,
+      time: localStorage.time || 10,
       milliseconds: 60000
     },
     nextTimer: null,
@@ -33,11 +33,11 @@ export default new Vuex.Store({
     },
     SET_IS_COLLECTION(state, isCollection) {
       state.isCollection = isCollection;
-      // localStorage.isCollection = isCollection;
+      localStorage.isCollection = isCollection;
     },
     SET_TIME(state, time) {
       state.config.time = time;
-      // localStorage.time = time;
+      localStorage.time = time;
     },
     SET_NEXT_TIMER(state, timer) {
       state.nextTimer = timer;
@@ -83,6 +83,11 @@ export default new Vuex.Store({
     },
     cancelTimeout({ commit }) {
       commit("STOP_NEXT_TIMER");
+    },
+    loadCollection({ state, dispatch }) {
+      if (state.isCollection) {
+        dispatch("startTimeout", null, { root: true });
+      }
     }
   },
   modules: {

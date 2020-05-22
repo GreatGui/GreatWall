@@ -18,7 +18,9 @@
         <div
           class="collection-destroy"
           title="Delete this Collection"
-          @click.prevent="deleteCollection({ _id: collection._id, index })"
+          @click.prevent="
+            modalDelete(collection.title, { _id: collection._id, index })
+          "
         >
           <i class="fa fa-window-close">&#xf00d;</i>
         </div>
@@ -44,20 +46,45 @@
         </div>
       </div>
     </div>
+    <modal :show="showModal" :header="title" @closed="closedModal"></modal>
   </div>
 </template>
 
 <script>
 import { mapState, mapActions, mapGetters } from "vuex";
+import Modal from "@/components/Modal";
 
 export default {
   name: "Collections",
+  components: {
+    Modal
+  },
+  data() {
+    return {
+      showModal: false,
+      title: "Are you sure you want to delete this Collection?",
+      objDelete: {}
+    };
+  },
   methods: {
     ...mapActions("collection", [
       "newCollection",
       "choosedCollection",
       "deleteCollection"
-    ])
+    ]),
+    modalDelete(title, objDelete) {
+      this.title = `Are you sure you want to delete the Collection "${title}"?`;
+      this.showModal = true;
+
+      this.objDelete = objDelete;
+    },
+    closedModal(res) {
+      this.showModal = false;
+
+      if (res) {
+        this.deleteCollection(this.objDelete);
+      }
+    }
   },
   computed: {
     ...mapState("collection", ["collections", "currentId"]),
@@ -88,6 +115,7 @@ export default {
   top: 4px;
   font-size: 20px;
   cursor: pointer;
+  transition: 0.3s all;
 }
 
 .collection-destroy:hover {

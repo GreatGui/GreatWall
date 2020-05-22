@@ -1,9 +1,9 @@
 <template>
   <div class="card-image">
-    <transition-group class="gallery scrollbar" name="gallery" tag="div">
+    <transition-group class="gallery scrollbar" :name="name" tag="div">
       <div
         v-for="(image, index) in images"
-        :key="index"
+        :key="image.name"
         class="image-box"
         :class="mode"
         :title="image.name"
@@ -37,6 +37,10 @@ export default {
     },
     currentWallpaper: {
       type: String
+    },
+    name: {
+      type: String,
+      default: "gallery"
     }
   },
   methods: {
@@ -134,5 +138,15 @@ export default {
 
 .gallery-leave-active {
   position: absolute;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-leave-to,
+.fade-enter-active {
+  transition: all 1s;
 }
 </style>

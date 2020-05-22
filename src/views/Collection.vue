@@ -10,11 +10,20 @@
           tag="h2"
           :text="collection.title"
           :min="1"
-          :max="32"
+          :max="24"
           @changed="editTitle"
         >
         </text-to-input>
-        <p>{{ collection.description }}</p>
+        <text-to-input
+          class-name="collection-description"
+          tag="p"
+          :text="collection.description"
+          :min="0"
+          :max="48"
+          place="Click to edit the description"
+          @changed="editDescription"
+        >
+        </text-to-input>
       </div>
       <span
         @click="choosedCollection(collection._id)"
@@ -63,7 +72,8 @@ export default {
       "choosedCollection",
       "collectionMenu",
       "clearCollection",
-      "editTitle"
+      "editTitle",
+      "editDescription"
     ])
   },
   computed: {
@@ -73,28 +83,25 @@ export default {
 };
 </script>
 
-<style scoped>
-header {
+<style>
+.collect header {
   border-bottom: 1px solid #dedede;
   padding-bottom: 15px;
-}
-
-a {
-  text-decoration: none;
-}
-
-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-header i {
+.collect a {
+  text-decoration: none;
+}
+
+.collect header i {
   font-size: 36px;
   cursor: pointer;
 }
 
-header .i-left {
+.collect header .i-left {
   /* position: absolute; */
   /* top: 20px; */
   /* left: 30px; */
@@ -102,7 +109,7 @@ header .i-left {
   color: #d9534f;
 }
 
-header .i-left:hover {
+.collect header .i-left:hover {
   filter: brightness(1.25);
 }
 
@@ -112,5 +119,9 @@ header .i-left:hover {
 
 .collection-title {
   font-size: 1.5em;
+}
+
+.collection-description {
+  font-size: 1em;
 }
 </style>
